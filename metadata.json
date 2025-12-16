@@ -1,0 +1,7 @@
+{
+  "name": "樂程坊 冬令營 2026",
+  "description": "2026 最強冬令營！結合 Minecraft、LEGO 機器人、3D列印與雷射切割。啟發孩子的科技創造力。",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
