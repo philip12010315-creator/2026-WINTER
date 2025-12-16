@@ -1,11 +1,15 @@
 import { GoogleGenAI } from "@google/genai";
 import { CAMPS } from "../constants";
 
-// Safely initialize the AI client. 
-// If the API key is missing (e.g. during build or if not set in GitHub Secrets), 
-// we use a dummy key or handle it gracefully to prevent the entire app from crashing (White Screen).
-const apiKey = process.env.API_KEY || "MISSING_KEY";
-const ai = new GoogleGenAI({ apiKey: apiKey });
+// Helper function to safely get the AI instance
+// This prevents the app from crashing on load if the API key is missing.
+const getAIClient = () => {
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+        throw new Error("API Key not configured");
+    }
+    return new GoogleGenAI({ apiKey: apiKey });
+};
 
 const CAMP_CONTEXT = Object.values(CAMPS).map(camp => 
     `【${camp.title}】\n時間:${camp.date}\n重點:${camp.tags.join('/')}\n課表:${camp.schedule.map(d=>d.title).join(',')}`
@@ -16,8 +20,7 @@ const PROMO_CONTEXT = `優惠: 1.早鳥折500(12/31前) 2.舊生折500 3.團報�
 // 1. Recommendation Logic
 export const getCampRecommendation = async (age: string, interests: string[]): Promise<string> => {
     try {
-        if (!process.env.API_KEY) throw new Error("API Key not configured");
-
+        const ai = getAIClient(); // Initialize here
         const campDescriptions = Object.values(CAMPS).map(c => `${c.title} (重點: ${c.tags.join(',')})`).join('\n');
         const interestsStr = interests.join('、');
         
@@ -46,8 +49,7 @@ export const getCampRecommendation = async (age: string, interests: string[]): P
 // 2. Chat Assistant Logic
 export const getChatResponse = async (userMessage: string): Promise<string> => {
     try {
-        if (!process.env.API_KEY) throw new Error("API Key not configured");
-
+        const ai = getAIClient(); // Initialize here
         const systemPrompt = `你是一個專業簡潔的夏令營顧問。**回答規則：** 1. **精簡扼要**：回答控制在 100 字內。 2. **格式化**：必須使用 Markdown 格式 (粗體、清單)。 3. **語氣**：親切、繁體中文。 資訊：\n${CAMP_CONTEXT}\n${PROMO_CONTEXT}`;
 
         const response = await ai.models.generateContent({

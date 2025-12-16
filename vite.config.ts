@@ -4,12 +4,14 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './', // This ensures assets work correctly on GitHub Pages
+  base: './',
   build: {
     outDir: 'dist',
   },
   define: {
-    // If API_KEY is undefined during build, default to empty string to avoid "process is not defined" or undefined errors
-    'process.env.API_KEY': JSON.stringify(process.env.API_KEY || '')
+    // Defines process.env.API_KEY specifically for the build
+    'process.env.API_KEY': JSON.stringify(process.env.API_KEY || ''),
+    // Fallback for other code that might check 'process.env' loosely
+    'process.env': {}
   }
 });
